@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const app = express();
@@ -175,9 +176,9 @@ app.post("/bfhl", (req, res) => {
   }
 
   res.json({
-    user_id: "gagandeepsingh_15122005",
-    email_id: "gagandeep1572.be23@chitkara.edu.in",
-    college_roll_number: "2310991572",
+    user_id: process.env.USER_ID,
+    email_id: process.env.EMAIL_ID,
+    college_roll_number: process.env.COLLEGE_ROLL_NUMBER,
     hierarchies,
     invalid_entries: invalidEntries,
     duplicate_edges: duplicateRelationships,
@@ -189,4 +190,7 @@ app.post("/bfhl", (req, res) => {
   });
 });
 
-app.listen(3000, () => console.log("✅ Server at http://localhost:3000"));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () =>
+  console.log(`✅ Server running at http://localhost:${PORT}`),
+);

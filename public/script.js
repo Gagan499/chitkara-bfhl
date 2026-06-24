@@ -1,4 +1,4 @@
-     // Small helper to show results and keep the output panel styled nicely.
+      // Small helper to show results and keep the output panel styled nicely.
       function renderOutput(html) {
         document.getElementById("output").innerHTML =
           '<div class="card">' + html + "</div>";
@@ -31,7 +31,7 @@
         }
 
         try {
-          const res = await fetch("https://gagandeepsingh-bfhlherokuappcom.vercel.app/bfhl", {
+          const res = await fetch("/bfhl", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ data }),

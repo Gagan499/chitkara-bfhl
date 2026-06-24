@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>BFHL Challenge</title>
+    <style>
+      body {
+        font-family: Inter, system-ui, sans-serif;
+        max-width: 840px;
+        margin: 40px auto;
+        padding: 0 20px;
+        color: #111827;
+        background: #f8fafc;
+      }
+      h2 {
+        margin-bottom: 0.25rem;
+        color: #111827;
+      }
+      p {
+        color: #4b5563;
+        line-height: 1.7;
+      }
+      code {
+        background: #eef2ff;
+        color: #3730a3;
+        padding: 2px 6px;
+        border-radius: 5px;
+      }
+      textarea {
+        width: 100%;
+        min-height: 150px;
+        font-size: 15px;
+        line-height: 1.6;
+        padding: 16px;
+        border-radius: 14px;
+        border: 1px solid #d1d5db;
+        background: white;
+        resize: vertical;
+        box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.05);
+      }
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 16px;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 22px;
+        border-radius: 12px;
+        border: none;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: 600;
+        transition:
+          transform 0.15s ease,
+          background 0.15s ease;
+      }
+      .btn-primary {
+        background: #4f46e5;
+        color: white;
+      }
+      .btn-primary:hover {
+        background: #4338ca;
+      }
+      .btn-secondary {
+        background: #e5e7eb;
+        color: #111827;
+      }
+      .btn-secondary:hover {
+        background: #d1d5db;
+      }
+      .btn:active {
+        transform: translateY(1px);
+      }
+      #output {
+        margin-top: 24px;
+      }
+      .card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 18px;
+        padding: 22px;
+        box-shadow: 0 18px 35px rgba(15, 23, 42, 0.08);
+      }
+      pre {
+        margin: 0;
+        background: #f8fafc;
+        color: #0f172a;
+        padding: 18px;
+        border-radius: 14px;
+        overflow-x: auto;
+      }
+      .error {
+        color: #b91c1c;
+        font-weight: 700;
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>BFHL Tree Processor</h2>
+    <p>
+      Enter edges like: <code>A->B, A->C, B->D</code> (comma or newline
+      separated)
+    </p>
+    <textarea id="input" placeholder="A->B, A->C, B->D, hello, 1->2"></textarea>
+    <!-- Buttons let the user submit or quickly clear the form. -->
+    <div class="controls">
+      <button class="btn btn-primary" onclick="submitData()">Submit</button>
+      <button class="btn btn-secondary" onclick="clearInput()">Clear</button>
+    </div>
+    <div id="output"></div>
+
+    <script>
+      // Small helper to show results and keep the output panel styled nicely.
+      function renderOutput(html) {
+        document.getElementById("output").innerHTML =
+          '<div class="card">' + html + "</div>";
+      }
+
+      // Reset the input box and clear any previous response.
+      function clearInput() {
+        document.getElementById("input").value = "";
+        document.getElementById("output").innerHTML = "";
+      }
+
+      async function submitData() {
+        // Convert the textarea contents into a clean list of edges.
+        const raw = document.getElementById("input").value;
+        const data = raw
+          .split(/[\n,]+/)
+          .map((s) =>
+            s
+              .trim()
+              .replace(/^['\"]+|['\"]+$/g, "")
+              .trim(),
+          )
+          .filter(Boolean);
+
+        if (!data.length) {
+          renderOutput(
+            '<p class="error">⚠️ Please enter at least one edge before submitting.</p>',
+          );
+          return;
+        }
+
+        try {
+          const res = await fetch("/bfhl", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ data }),
+          });
+          const json = await res.json();
+          renderOutput("<pre>" + JSON.stringify(json, null, 2) + "</pre>");
+        } catch (err) {
+          renderOutput(
+            '<p class="error">❌ API call failed: ' + err.message + "</p>",
+          );
+        }
+      }
+    </script>
+  </body>
+</html>

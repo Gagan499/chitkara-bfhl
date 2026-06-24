@@ -10,6 +10,15 @@
         document.getElementById("output").innerHTML = "";
       }
 
+      function escapeHtml(str) {
+        return str
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
       async function submitData() {
         // Convert the textarea contents into a clean list of edges.
         const raw = document.getElementById("input").value;
@@ -36,7 +45,33 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ data }),
           });
-          const json = await res.json();
+
+          const text = await res.text();
+          if (!res.ok) {
+            renderOutput(
+              '<p class="error">❌ API call failed: ' +
+                res.status +
+                " " +
+                res.statusText +
+                '</p><pre>' +
+                escapeHtml(text) +
+                "</pre>",
+            );
+            return;
+          }
+
+          let json;
+          try {
+            json = JSON.parse(text);
+          } catch (parseError) {
+            renderOutput(
+              '<p class="error">❌ API call failed: Invalid JSON response.</p><pre>' +
+                escapeHtml(text) +
+                "</pre>",
+            );
+            return;
+          }
+
           renderOutput("<pre>" + JSON.stringify(json, null, 2) + "</pre>");
         } catch (err) {
           renderOutput(

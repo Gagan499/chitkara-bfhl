@@ -4,7 +4,13 @@ const cors = require("cors");
 const app = express();
 
 // Simple server setup: allow CORS from any origin, parse JSON, and serve the static frontend.
-app.use(cors({ origin: true, methods: ['GET', 'POST', 'OPTIONS'], credentials: true }));
+app.use(
+  cors({
+    origin: true,
+    methods: ["GET", "POST", "OPTIONS"],
+    credentials: true,
+  }),
+);
 app.use(express.json());
 app.use(express.static("public"));
 

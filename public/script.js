@@ -1,81 +1,47 @@
-      // Small helper to show results and keep the output panel styled nicely.
-      function renderOutput(html) {
-        document.getElementById("output").innerHTML =
-          '<div class="card">' + html + "</div>";
-      }
+// Small helper to show results and keep the output panel styled nicely.
+const API_URL = "https://gagandeepsingh-bhflherokuappcom.vercel.app";
+function renderOutput(html) {
+  document.getElementById("output").innerHTML =
+    '<div class="card">' + html + "</div>";
+}
 
-      // Reset the input box and clear any previous response.
-      function clearInput() {
-        document.getElementById("input").value = "";
-        document.getElementById("output").innerHTML = "";
-      }
+// Reset the input box and clear any previous response.
+function clearInput() {
+  document.getElementById("input").value = "";
+  document.getElementById("output").innerHTML = "";
+}
 
-      function escapeHtml(str) {
-        return str
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;")
-          .replace(/"/g, "&quot;")
-          .replace(/'/g, "&#039;");
-      }
+async function submitData() {
+  // Convert the textarea contents into a clean list of edges.
+  const raw = document.getElementById("input").value;
+  const data = raw
+    .split(/[\n,]+/)
+    .map((s) =>
+      s
+        .trim()
+        .replace(/^['\"]+|['\"]+$/g, "")
+        .trim(),
+    )
+    .filter(Boolean);
 
-      async function submitData() {
-        // Convert the textarea contents into a clean list of edges.
-        const raw = document.getElementById("input").value;
-        const data = raw
-          .split(/[\n,]+/)
-          .map((s) =>
-            s
-              .trim()
-              .replace(/^['\"]+|['\"]+$/g, "")
-              .trim(),
-          )
-          .filter(Boolean);
+  if (!data.length) {
+    renderOutput(
+      '<p class="error">⚠️ Please enter at least one edge before submitting.</p>',
+    );
+    return;
+  }
 
-        if (!data.length) {
-          renderOutput(
-            '<p class="error">⚠️ Please enter at least one edge before submitting.</p>',
-          );
-          return;
-        }
-
-        try {
-          const res = await fetch("/bfhl", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ data }),
-          });
-
-          const text = await res.text();
-          if (!res.ok) {
-            renderOutput(
-              '<p class="error">❌ API call failed: ' +
-                res.status +
-                " " +
-                res.statusText +
-                '</p><pre>' +
-                escapeHtml(text) +
-                "</pre>",
-            );
-            return;
-          }
-
-          let json;
-          try {
-            json = JSON.parse(text);
-          } catch (parseError) {
-            renderOutput(
-              '<p class="error">❌ API call failed: Invalid JSON response.</p><pre>' +
-                escapeHtml(text) +
-                "</pre>",
-            );
-            return;
-          }
-
-          renderOutput("<pre>" + JSON.stringify(json, null, 2) + "</pre>");
-        } catch (err) {
-          renderOutput(
-            '<p class="error">❌ API call failed: ' + err.message + "</p>",
-          );
-        }
-      }
+  try {
+    const res = await fetch(API_URL + "/bfhl", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ data }),
+    });
+    const json = await res.json();
+    renderOutput("<pre>" + JSON.stringify(json, null, 2) + "</pre>");
+  } catch (err) {
+    renderOutput(
+      '<p class="error">❌ API call failed: ' + err.message + "</p>",
+    );
+  }
+}
